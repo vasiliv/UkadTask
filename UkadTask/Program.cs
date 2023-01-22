@@ -3,6 +3,10 @@ using System.Xml;
 using System;
 using UkadTask;
 using HtmlAgilityPack;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using System.Reflection;
 
 Console.Write("Please enter url address: ");
 string urlName = Console.ReadLine();
@@ -31,7 +35,10 @@ Console.WriteLine($"Urls(html documents) found after crawling a website: {urlLis
 //Sitemap.xml file is placed at \bin\Debug\net5.0 folder
 XmlDocument xmlDoc = new XmlDocument();
 List<Url> xmlList = new List<Url>();
-xmlDoc.Load("Sitemap.xml");
+
+var fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Sitemap.xml");
+xmlDoc.Load(fileName);
+
 XmlNodeList xmlNodes = xmlDoc.SelectNodes("/root/url");
 
 foreach (XmlNode node in xmlNodes)
