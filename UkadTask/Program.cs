@@ -7,12 +7,10 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
+using System.Linq;
 
-//Console.Write("Please enter url address: ");
-//string urlName = Console.ReadLine();
-//string urlName = "https://www.ambebi.ge/";
-string urlName = "https://www.github.com/";
-
+Console.Write("Please enter url address: ");
+string urlName = Console.ReadLine();
 
 Stopwatch stopwatch = new Stopwatch();
 List<Url> urlList = new List<Url>();
@@ -43,11 +41,9 @@ HtmlDocument htmlDoc = web.Load(urlName);
 //Use the SelectNodes method to find all the "a" elements in the document:
 HtmlNodeCollection htmlNodes = htmlDoc.DocumentNode.SelectNodes("//a[@href]");
 
-//Iterate through the nodes and check the "href" attribute of each node to see if it starts with "http"
 foreach (HtmlNode node in htmlNodes)
 {
-    stopwatch.Start();
-    //if (node.Attributes["href"].Value.Contains("http"))
+    stopwatch.Start();    
     if (node.OuterHtml.Contains("/"))
     {
         stopwatch.Stop();
@@ -56,24 +52,31 @@ foreach (HtmlNode node in htmlNodes)
 }
 Console.WriteLine($"Urls(html documents) found after crawling a website: {urlList.Count}");
 
-//Concatinate url and xml Lists
-//List<Url> totalList = xmlList.Concat(urlList).Distinct().ToList();
-
 var xmlListOnlyName = xmlList.Select(x => x.UrlName);
 var urlListOnlyName = urlList.Select(x => x.UrlName);
-var all = xmlListOnlyName.Concat(urlListOnlyName).Distinct();
-foreach (var url in all)
-{
-    
-}
-//var list1 = new List<Url>;
-//foreach (Url urlxml in urlList)
 
+Console.WriteLine();
+Console.WriteLine("1. Merge ordered by timing");
+var totalList = xmlList.Concat(urlList).OrderBy(i => i.ElapsedTime);
 
-//xmllist
-//url list
-//totallist
 foreach (var item in totalList)
 {
     Console.WriteLine($"{item.UrlName} {item.ElapsedTime}");
 }
+
+Console.WriteLine();
+Console.WriteLine("2. Except URL");
+var exceptXml = xmlListOnlyName.Except(urlListOnlyName);
+foreach (var item in exceptXml)
+{
+    Console.WriteLine(item);
+}
+
+Console.WriteLine();
+Console.WriteLine("3. Except Sitemap.xml");
+var exceptUrl = urlListOnlyName.Except(xmlListOnlyName);
+foreach (var item in exceptUrl)
+{
+    Console.WriteLine(item);
+}
+
