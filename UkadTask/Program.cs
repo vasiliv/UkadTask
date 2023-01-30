@@ -13,11 +13,11 @@ using System.Xml.Linq;
 List<Url> urlList = new List<Url>();
 List<Url> xmlList = new List<Url>();
 
-//Console.Write("Please enter url address: ");
-//string urlName = Console.ReadLine();
+Console.Write("Please enter url address: ");
+string urlName = Console.ReadLine();
 
 //string urlName = "https://jwt.io/";
-string urlName = "https://lenta.ru/";
+//string urlName = "https://lenta.ru/";
 //string urlName = "https://www.google.com/";
 
 HtmlWeb web = new HtmlWeb();
