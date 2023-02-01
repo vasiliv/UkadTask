@@ -10,15 +10,17 @@ using System.Reflection;
 using System.Linq;
 using System.Xml.Linq;
 
+Stopwatch stopwatch = new Stopwatch();
 List<Url> urlList = new List<Url>();
 List<Url> xmlList = new List<Url>();
 
 Console.Write("Please enter url address: ");
-string urlName = Console.ReadLine();
+string urlName = Console.ReadLine().TrimEnd('/');
 
-//string urlName = "https://jwt.io/";
+//string urlName = "https://jwt.io";
 //string urlName = "https://lenta.ru/";
-//string urlName = "https://www.google.com/";
+//string urlName = "https://www.google.com";
+//string urlName = "https://ss.ge/";
 
 HtmlWeb web = new HtmlWeb();
 if (Helper.UrlExists(urlName))
@@ -30,9 +32,12 @@ if (Helper.UrlExists(urlName))
 
     foreach (HtmlNode node in htmlNodes)
     {
-        if (node.OuterHtml.Contains("/"))
+        stopwatch.Start();
+        //Select only outer links
+        if (node.Attributes["href"].Value.Contains("http"))
         {
-            urlList.Add(new Url { UrlName = node.Attributes["href"].Value.TrimEnd('/'), ElapsedTime = Helper.GetResponseTime(urlName) });
+            stopwatch.Stop();
+            urlList.Add(new Url { UrlName = node.Attributes["href"].Value.TrimEnd('/'), ElapsedTime = stopwatch.ElapsedMilliseconds });
         }
     }
 }
@@ -48,11 +53,15 @@ string sitemapUrl = Helper.ConvertUrlToSitemap(urlName);
 if (Helper.UrlExists(sitemapUrl))
 {
     xmlDoc.Load(sitemapUrl);
-
     foreach (XmlNode node in xmlDoc.DocumentElement)
     {
-        //add urls located in <loc> node to xmlList
-        xmlList.Add(new Url { UrlName = node.FirstChild.InnerXml, ElapsedTime = Helper.GetResponseTime(sitemapUrl) });
+        stopwatch.Start();
+        if (node.InnerText.Contains("http"))
+        {
+            stopwatch.Stop();
+            //add urls located in <loc> node to xmlList
+            xmlList.Add(new Url { UrlName = node.FirstChild.InnerXml, ElapsedTime = stopwatch.ElapsedMilliseconds });
+        }
     }
 }
 else
@@ -60,6 +69,8 @@ else
     Console.WriteLine("Sitemap.xml does not exist");
 }
 
+//Extract only unique members
+urlList = urlList.GroupBy(u => u.UrlName).Select(u => u.FirstOrDefault()).ToList();
 Console.WriteLine($"Urls(html documents) found after crawling a website: {urlList.Count}");
 Console.WriteLine($"Urls found in sitemap.xml: {xmlList.Count}");
 
